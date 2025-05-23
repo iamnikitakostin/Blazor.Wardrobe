@@ -14,6 +14,12 @@ builder.Services.AddScoped<WardrobeItemService>();
 
 var app = builder.Build();
 
+using(var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<WardrobeContext>();
+    context.Database.EnsureCreated();
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
