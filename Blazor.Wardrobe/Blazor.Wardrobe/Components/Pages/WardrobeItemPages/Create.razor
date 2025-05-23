@@ -1,0 +1,66 @@
+﻿@page "/items/create"
+@using Blazor.Wardrobe.Services
+@using Microsoft.AspNetCore.Components.Forms
+@rendermode InteractiveServer
+
+
+<h3>Create</h3>
+
+@if (loading)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<EditForm Model="item" OnValidSubmit="HandleSubmit" FormName="addItem" >
+    <DataAnnotationsValidator />
+    <div class="d-flex flex-column">
+        <label>
+            Image URL:
+            <InputText @bind-Value="item.ImageUrl" placeholder="Image Urls" />
+        </label>
+        <label>
+            Name:
+            <InputText @bind-Value="item.Name" placeholder="Name" />
+        </label>
+        <label>
+            Brand:
+            <InputText @bind-Value="item.Brand" placeholder="Brand" />
+        </label>
+        <label>
+            Category:
+            <InputText @bind-Value="item.Category" placeholder="Category" />
+        </label>
+        <label>
+            Description:
+            <InputText @bind-Value="item.Description" placeholder="Description" />
+        </label>
+    </div>
+   
+
+    <ValidationSummary />
+    <button type="submit">Create</button>
+</EditForm>
+}
+
+@code {
+    private Blazor.Wardrobe.Models.WardrobeItem? item = new();
+    private bool loading = false;
+    private bool isSuccess;
+    [Inject] WardrobeItemService _service { get; set; }
+    [Inject] NavigationManager _navigationManager { get; set; }
+
+    private async Task HandleSubmit()
+    {
+        loading = true;
+
+        isSuccess = await _service.AddAsync(item);
+
+        loading = false;
+
+        if (isSuccess)
+        {
+            _navigationManager.NavigateTo("/items");
+        }
+    }
+}

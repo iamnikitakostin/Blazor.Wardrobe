@@ -1,0 +1,80 @@
+﻿@page "/items"
+@using Blazor.Wardrobe.Services
+@inject NavigationManager _navigationManager
+
+
+<h3>Index</h3>
+
+@if (loading)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    if (items.Count == 0)
+    {
+        <a href="/items/create">Add new</a>
+        <p><em>No items found.</em></p>
+    }
+    else
+    {
+        <a href="/items/create">Add new</a>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th aria-label="Name">Name</th>
+                    <th aria-label="Brand">Brand</th>
+                    <th aria-label="Category">Category</th>
+                    <th aria-label="Details">Details</th>
+                    <th aria-label="Delete?">Delete?</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in items)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Name</td>
+                        <td>@item.Brand</td>
+                        <td>@item.Category</td>
+                        <td><a href="/items/@item.Id">Details</a></td>
+                        <td><a href="/items/delete/@item.Id">Delete</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    private List<Blazor.Wardrobe.Models.WardrobeItem>? items;
+    private bool loading = true;
+    private WardrobeItemService _service { get; set; }
+
+    public Index(WardrobeItemService wardrobeItemService)
+    {
+        _service = wardrobeItemService;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        items = await _service.GetAllAsync();
+        loading = false;
+    }
+
+    private async Task OnDetailsClick(int id)
+    {
+        _navigationManager.NavigateTo($"/items/{id.ToString()}");
+    }
+
+    private async Task OnClickNew()
+    {
+        _navigationManager.NavigateTo($"/items/create");
+    }
+
+    private async Task OnDeleteClick(int id)
+    {
+        _navigationManager.NavigateTo($"/items/delete/{id}");
+    }
+}

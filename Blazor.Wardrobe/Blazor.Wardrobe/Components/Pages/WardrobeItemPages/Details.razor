@@ -1,0 +1,65 @@
+﻿@page "/items/{id}"
+@using Blazor.Wardrobe.Services
+
+
+<h3>Details</h3>
+
+@if (loading)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    if (item == null)
+    {
+        <p><em>The item with id @Id was not found.</em></p>
+    }
+    else
+    {
+        <div class="d-flex gap-4">
+            <div class="w-50"><img src=@item.ImageUrl class="w-100" /></div>
+            <div>
+                <div class="d-flex gap-1">
+                    <p class="fw-bold">Name: </p>
+                    <div>@item.Name</div>
+                </div>
+                <div class="d-flex gap-1">
+                    <p class="fw-bold">Brand: </p>
+                    <div>@item.Brand</div>
+                </div>
+                <div class="d-flex gap-1">
+                    <p class="fw-bold">Category: </p>
+                    <div>@item.Category</div>
+                </div>
+                <div class="d-flex gap-1">
+                    <p class="fw-bold">Description: </p>
+                    <div>@item.Description</div>
+                </div>
+                <div><a href="/items/edit/@item.Id">Edit</a></div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private Blazor.Wardrobe.Models.WardrobeItem? item;
+    private bool loading = true;
+    [Inject] NavigationManager _navigationManager { get; set; }
+    [Inject] WardrobeItemService _wardrobeItemService { get; set; }
+    [Parameter]
+    public string Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (int.TryParse(Id, out int IdInt))
+        {
+            item = await _wardrobeItemService.GetByIdAsync(IdInt);
+            loading = false;
+        }
+        else
+        {
+            _navigationManager.NavigateTo("/items");
+
+        }
+    }
+}

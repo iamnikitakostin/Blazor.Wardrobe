@@ -1,0 +1,63 @@
+﻿@page "/items/delete/{id}"
+@using Blazor.Wardrobe.Services
+@using Microsoft.AspNetCore.Components.Forms
+@rendermode InteractiveServer
+
+<h3>Delete</h3>
+
+@if (loading)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="text-bg-danger">
+        <p>Are you sure you want to delete the item with id @Id ?</p>
+        <button onclick="@HandleSubmit">Yes</button>
+        <button onclick="@HandleCancel">No</button>
+    </div>
+}
+
+@code {
+    private Blazor.Wardrobe.Models.WardrobeItem? item = new();
+    private bool loading = true;
+    private bool isSuccess;
+    [Parameter]
+    public string Id { get; set; }
+    public int IdConverted { get; set; }
+    [Inject] WardrobeItemService _wardrobeItemService { get; set; }
+    [Inject] NavigationManager _navigationManager { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (int.TryParse(Id, out int IdInt))
+        {
+            item = await _wardrobeItemService.GetByIdAsync(IdInt);
+            IdConverted = IdInt;
+            loading = false;
+        } else
+        {
+            _navigationManager.NavigateTo("/items");
+
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        loading = true;
+        isSuccess = await _wardrobeItemService.DeleteAsync(IdConverted);
+        loading = false;
+
+        if (isSuccess)
+        {
+            _navigationManager.NavigateTo("/items");
+        }
+    }
+
+    private async Task HandleCancel()
+    {
+        loading = true;
+
+        _navigationManager.NavigateTo("/items");
+    }
+}
